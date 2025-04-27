@@ -1,20 +1,41 @@
-import requests
+# src/api_client.py
 import pandas as pd
+import requests
+from io import StringIO
 
-def fetch_eco2mix_data(rows=500) -> pd.DataFrame:
-    url = "https://odre.opendatasoft.com/api/records/1.0/search/"
-    params = {
-        "dataset": "eco2mix-national-tr",
-        "rows": rows,
-        "sort": "date_heure"
-    }
+BASE_URL = "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-tr/records"
 
-    try:
-        r = requests.get(url, params=params)
-        r.raise_for_status()
-        records = r.json()["records"]
-        data = [rec["fields"] for rec in records]
-        return pd.DataFrame(data)
-    except Exception as e:
-        print("Erreur API:", e)
+def fetch_eco2mix_data(rows = 500):
+    batch_size = 100  # OpenDataSoft limite à 100 par requête
+    all_records = []
+
+    for offset in range(0, rows, batch_size):
+        params = {
+            "limit": batch_size,
+            "offset": offset,
+            "timezone": "Europe/Paris",
+            "order_by": "date DESC"
+        }
+
+        try:
+            response = requests.get(BASE_URL, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            records = data.get("results", [])
+            all_records.extend(records)
+
+            # Stop early if less data than batch_size = plus de données dispo
+            if len(records) < batch_size:
+                break
+
+        except Exception as e:
+            print(f"Erreur lors du chargement des données (offset {offset}) : {e}")
+            break
+
+    # Transforme en DataFrame
+    if all_records:
+        df = pd.json_normalize(all_records)
+        return df
+    else:
         return pd.DataFrame()
