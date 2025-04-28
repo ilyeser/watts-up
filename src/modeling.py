@@ -14,6 +14,6 @@ def train_co2_model(df: pd.DataFrame):
     model.fit(X_train, y_train)
 
     score = model.score(X_test, y_test)
-    print(f"Score R2 sur test : {score:.2f}")
+    print(f"R2 score : {score:.2f}")
 
     return model

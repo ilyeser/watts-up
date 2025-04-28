@@ -6,7 +6,7 @@ from io import StringIO
 BASE_URL = "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-tr/records"
 
 def fetch_eco2mix_data(rows = 500):
-    batch_size = 100  # OpenDataSoft limite à 100 par requête
+    batch_size = 100  # OpenData limits to 100 rows per call
     all_records = []
 
     for offset in range(0, rows, batch_size):
@@ -25,7 +25,7 @@ def fetch_eco2mix_data(rows = 500):
             records = data.get("results", [])
             all_records.extend(records)
 
-            # Stop early if less data than batch_size = plus de données dispo
+            # Stop early if less data than batch_size = no more data
             if len(records) < batch_size:
                 break
 
@@ -33,7 +33,7 @@ def fetch_eco2mix_data(rows = 500):
             print(f"Erreur lors du chargement des données (offset {offset}) : {e}")
             break
 
-    # Transforme en DataFrame
+    # Into datagrame
     if all_records:
         df = pd.json_normalize(all_records)
         return df
