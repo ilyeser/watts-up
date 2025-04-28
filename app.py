@@ -12,7 +12,7 @@ st.sidebar.title("WattsUp ⚡")
 st.sidebar.subheader("Navigation")
 page = st.sidebar.selectbox("Aller à :", ["Dashboard", "À propos"])
 
-rows = st.sidebar.slider("Nombre de points à charger :", 100, 3000, 1000, step=100)
+rows = st.sidebar.slider("Nombre de points à charger :", 1000, 10000, 4000, step=100)
 
 with st.spinner("Chargement des données..."):
     raw_df = fetch_eco2mix_data(rows)
